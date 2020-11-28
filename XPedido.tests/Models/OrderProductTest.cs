@@ -16,9 +16,9 @@ namespace XPedido.tests.Models
         public void QuantityNotShoudBeNegative(int inicio, int incrementDecrement)
         {
             //Arrange
-            Moq.Mock<Product> mock = new Moq.Mock<Product>();
+            Product prod = new Product();
 
-            OrderProduct orderProduct = new OrderProduct(mock.Object, inicio);
+            OrderProduct orderProduct = new OrderProduct(prod, inicio);
 
             //Act
             orderProduct.IncrementDecrementQuantity(incrementDecrement);
@@ -34,9 +34,9 @@ namespace XPedido.tests.Models
         public void QuantityShoudBeIncremented(int inicio, int incrementDecrement, int result)
         {
             //Arrange
-            Moq.Mock<Product> mock = new Moq.Mock<Product>();
+            Product prod = new Product();
 
-            OrderProduct orderProduct = new OrderProduct(mock.Object, inicio);
+            OrderProduct orderProduct = new OrderProduct(prod, inicio);
 
             //Act
             orderProduct.IncrementDecrementQuantity(incrementDecrement);
@@ -52,9 +52,9 @@ namespace XPedido.tests.Models
         public void QuantityShoudBeDecremented(int inicio, int incrementDecrement, int result)
         {
             //Arrange
-            Moq.Mock<Product> mock = new Moq.Mock<Product>();
+            Product prod = new Product();
 
-            OrderProduct orderProduct = new OrderProduct(mock.Object, inicio);
+            OrderProduct orderProduct = new OrderProduct(prod, inicio);
 
             //Act
             orderProduct.IncrementDecrementQuantity(incrementDecrement);
@@ -65,9 +65,16 @@ namespace XPedido.tests.Models
 
         [Fact]
         public void ProductNotShoudBeNull()
-        { 
+        {
+            //Arrange
+            Product product = null;
+
+            //Act
+            Action action = () => new OrderProduct(product, 1);
+
             //Assert
-            Assert.Throws<ArgumentNullException>(() => new OrderProduct(null, 1));
+            Assert.Throws<ArgumentNullException>(action);
         }
     }
 }
+    

@@ -6,4 +6,5 @@
     public string Photo { get; set; }
     public float Price { get; set; }
     public int? Category_id { get; set; }
+    public Category Category { get; set; }
 }
