@@ -9,18 +9,15 @@ namespace XPedido.Models
         public int ID { get; set; }
         public int Quantity { get; private set; }
         public Product Product { get; private set; }
-
         public OrderProduct(Product product, int quantity)
         {
-            Product = product;
+            Product = product ?? throw new ArgumentNullException(nameof(product)); ;
             SetQuantity(quantity);
         }
-
-        public void IncrementDecrementQuantity(int IncrementDecrement )
+        public void IncrementDecrementQuantity(int IncrementDecrement)
         {
             SetQuantity(Quantity + IncrementDecrement);
         }
-
         private void SetQuantity(int quantity)
         {
             Quantity = quantity < 0 ? 0 : quantity;
