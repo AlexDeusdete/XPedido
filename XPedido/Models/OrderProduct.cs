@@ -29,18 +29,23 @@ namespace XPedido.Models
             Quantity = quantity < 0 ? 0 : quantity;
         }
 
-        public bool HasDiscont() => _productPromotion.Policies.Any(x => x.Min <= Quantity);
+        public bool HasDiscont() => _productPromotion?.Policies.Any(x => x.Min <= Quantity) ?? false;
 
         public double GetValueDiscount()
         {
-            float Desc = _productPromotion.Policies.Where(x => x.Min <= Quantity).Max(x => x.Discount);
-            return (Desc / 100.0) * Product.Price;
+            return ((GetPercentDiscount() / 100.0) * Product.Price) * Quantity;
         }
 
         public double GetPercentDiscount()
         {
-            float Desc = _productPromotion.Policies.Where(x => x.Min <= Quantity).Max(x => x.Discount);
-            return (Desc / 100.0) * Product.Price;
+            float Desc = HasDiscont() ? _productPromotion.Policies.Where(x => x.Min <= Quantity).Max(x => x.Discount) : 0;
+            Desc = Desc < 0 ? 0 : Desc;
+            return Desc > 100 ? 0 : Desc;
+        }
+
+        public double GetTotalPriceAfterDiscount()
+        {
+            return (Quantity * Product.Price) - GetValueDiscount();
         }
 
     }
