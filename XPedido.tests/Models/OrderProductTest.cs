@@ -31,7 +31,7 @@ namespace XPedido.tests.Models
         public void QuantityNotShouldBeNegative(int inicio, int incrementDecrement)
         {
             //Arrange
-            var orderProduct = GetOrderProductFake(inicio); ;
+            var orderProduct = GetOrderProductFake(inicio);
 
             //Act
             orderProduct.IncrementDecrementQuantity(incrementDecrement);
@@ -79,7 +79,7 @@ namespace XPedido.tests.Models
             Product product = null;
 
             //Act
-            Action action = () => new OrderProduct(product, 1, null);
+            void action() => new OrderProduct(product, 1, null);
 
             //Assert
             Assert.Throws<ArgumentNullException>(action);

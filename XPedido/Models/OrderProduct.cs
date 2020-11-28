@@ -10,7 +10,7 @@ namespace XPedido.Models
         public int ID { get; set; }
         public int Quantity { get; private set; }
         public Product Product { get; private set; }
-        private ProductPromotion _productPromotion;
+        private readonly ProductPromotion _productPromotion;
 
         public OrderProduct(Product product, int quantity, ProductPromotion productPromotion)
         {
