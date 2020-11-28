@@ -162,6 +162,38 @@ namespace XPedido.tests.Models
             //Assert
             Assert.False(actual > 0);
         }
+
+        [Theory]
+        [InlineData(6, 20.50, 5, 15, 104.55)]
+        [InlineData(4, 1000, 2, 27, 2920)]
+        [InlineData(3, 2500, 2, 0, 7500)]
+        public void GetTotalPriceAfterDiscountShouldBeEqualsTheResult(int qtyProduct, float priceProduct, int qtyMinPromotion, float percentDiscount, double result)
+        {
+            //Arrange
+            var orderProduct = GetOrderProductFake(qtyProduct, priceProduct, qtyMinPromotion, percentDiscount);
+
+            //Act
+            double actual = orderProduct.GetTotalPriceAfterDiscount();
+
+            //Assert
+            Assert.Equal(result, actual);
+        }
+
+        [Theory]
+        [InlineData(6, 20.50, 5, 150)]
+        [InlineData(4, 1000, 2, 88)]
+        [InlineData(3, 2500, 2, -54)]
+        public void GetTotalPriceAfterDiscountShouldBePositive(int qtyProduct, float priceProduct, int qtyMinPromotion, float percentDiscount)
+        {
+            //Arrange
+            var orderProduct = GetOrderProductFake(qtyProduct, priceProduct, qtyMinPromotion, percentDiscount);
+
+            //Act
+            double actual = orderProduct.GetTotalPriceAfterDiscount();
+
+            //Assert
+            Assert.True(actual >= 0);
+        }
     }
 }
     
