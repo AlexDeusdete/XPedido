@@ -9,4 +9,8 @@
     <Folder Include="Services\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Refit" Version="5.2.4" />
+  </ItemGroup>
+
 </Project>
