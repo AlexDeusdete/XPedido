@@ -8,7 +8,7 @@ namespace XPedido.Models
     public class Order
     {
         public int ID { get; set; }
-        public readonly IList<OrderProduct> Products = new List<OrderProduct>();
+        private readonly List<OrderProduct> Products = new List<OrderProduct>();
 
         public Order(int ID)
         {
@@ -18,6 +18,10 @@ namespace XPedido.Models
         public double GetTotalAfterDiscount() => Products.Sum(x => x.GetTotalPriceAfterDiscount());
 
         public int GetTotalQuantityProducts() => Products.Sum(x => x.Quantity);
+
+        public OrderProduct GetOrderProduct(Product product) => Products.FirstOrDefault(x => x.Product.Id == product?.Id);
+
+        public IReadOnlyCollection<OrderProduct> GetOrderProducts() => Products.AsReadOnly();
 
         public bool AddProduct(Product product, int Quantity, ProductPromotion productPromotion)
         {

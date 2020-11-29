@@ -14,11 +14,12 @@ namespace XPedido.tests.Models
         {
             //Arrange
             Order order = new Order(1);
-            order.AddProduct(new Product(), 1, null);
-            order.RemoveProduct(order.Products[0]);
+            var prod = new Product() { Id = 1 };
+            order.AddProduct(prod, 1, null);
+            order.RemoveProduct(order.GetOrderProduct(prod));
 
             //Act
-            IList<OrderProduct> actual = order.Products;
+            IReadOnlyCollection<OrderProduct> actual = order.GetOrderProducts();
 
             //Assert
             Assert.Empty(actual);
@@ -32,10 +33,10 @@ namespace XPedido.tests.Models
             order.AddProduct(new Product(), 1, null);
 
             //Act
-            IList<OrderProduct> actual = order.Products;
+            IReadOnlyCollection<OrderProduct> actual = order.GetOrderProducts();
 
             //Assert
-            Assert.Empty(actual);
+            Assert.NotEmpty(actual);
         }
 
         [Fact]
@@ -45,12 +46,10 @@ namespace XPedido.tests.Models
             Order order = new Order(1);
 
             Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };
-            OrderProduct orderProduct = new OrderProduct(product, 1, null);
-            order.Products.Add(orderProduct);
+            order.AddProduct(product, 1, null);
 
             product = new Product() { Id = 2, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 350 };
-            orderProduct = new OrderProduct(product, 3, null);
-            order.Products.Add(orderProduct);
+            order.AddProduct(product, 3, null);
 
             //Act
             double actual = order.GetTotalAfterDiscount();
@@ -65,19 +64,47 @@ namespace XPedido.tests.Models
             //Arrange
             Order order = new Order(1);
 
-            Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };
-            OrderProduct orderProduct = new OrderProduct(product, 1, null);
-            order.Products.Add(orderProduct);
+            Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };            
+            order.AddProduct(product, 1, null);
 
             product = new Product() { Id = 2, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 350 };
-            orderProduct = new OrderProduct(product, 3, null);
-            order.Products.Add(orderProduct);
+            order.AddProduct(product, 3, null);
 
             //Act
             int actual = order.GetTotalQuantityProducts();
 
             //Assert
             Assert.Equal(4, actual);
+        }
+
+        [Fact]
+        public void GetOrderProductShouldBeNull()
+        {            
+            //Arrange
+            Order order = new Order(1);            
+
+            Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };
+
+            //Act
+            OrderProduct actual = order.GetOrderProduct(product);
+
+            //Assert
+            Assert.Null(actual);
+        }
+
+        [Fact]
+        public void GetOrderProductNotShouldBeNull()
+        {
+            //Arrange
+            Order order = new Order(1);
+            Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };
+            order.AddProduct(product, 1, null);
+
+            //Act
+            OrderProduct actual = order.GetOrderProduct(product);
+
+            //Assert
+            Assert.NotNull(actual);
         }
 
         [Fact]
@@ -103,12 +130,11 @@ namespace XPedido.tests.Models
             Order order = new Order(1);
 
             Product product = new Product() { Id = 1, Category_id = 1, Description = "Teste Descrição", Name = "teste", Price = 850 };
-            OrderProduct orderProduct = new OrderProduct(product, 1, null);
-            order.Products.Add(orderProduct);
+            order.AddProduct(product, 1, null);
 
             //Act
             order.UpdateQuantityProduct(product, newQuantity);
-            int actual = order.Products.FirstOrDefault(x => x.Product.Id == product.Id)?.Quantity ?? 0;
+            int actual = order.GetOrderProduct(product)?.Quantity ?? 0;
 
             //Assert
             Assert.Equal(result, actual);
