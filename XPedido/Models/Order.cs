@@ -8,34 +8,34 @@ namespace XPedido.Models
     public class Order
     {
         public int ID { get; set; }
-        private readonly List<OrderProduct> Products = new List<OrderProduct>();
+        private readonly List<OrderProduct> _products = new List<OrderProduct>();
 
         public Order(int ID)
         {
             this.ID = ID;
         }
 
-        public double GetTotalAfterDiscount() => Products.Sum(x => x.GetTotalPriceAfterDiscount());
+        public double GetTotalAfterDiscount() => _products.Sum(x => x.GetTotalPriceAfterDiscount());
 
-        public int GetTotalQuantityProducts() => Products.Sum(x => x.Quantity);
+        public int GetTotalQuantityProducts() => _products.Sum(x => x.Quantity);
 
-        public OrderProduct GetOrderProduct(Product product) => Products.FirstOrDefault(x => x.Product.Id == product?.Id);
+        public OrderProduct GetOrderProduct(Product product) => _products.FirstOrDefault(x => x.Product.Id == product?.Id);
 
-        public IReadOnlyCollection<OrderProduct> GetOrderProducts() => Products.AsReadOnly();
+        public IReadOnlyCollection<OrderProduct> GetOrderProducts() => _products.AsReadOnly();
 
         public bool AddProduct(Product product, int Quantity, ProductPromotion productPromotion)
         {
             try
             {
-                if (Products.Any(x => x.Product.Id == product.Id))
+                if (_products.Any(x => x.Product.Id == product.Id))
                 {
                     //Pega o Produto que já existia e atualiza a quantidade dele
-                    OrderProduct existingOrderProduct = Products.FirstOrDefault(x => x.Product.Id == product.Id);
+                    OrderProduct existingOrderProduct = _products.FirstOrDefault(x => x.Product.Id == product.Id);
                     existingOrderProduct.IncrementDecrementQuantity(Quantity - existingOrderProduct.Quantity);
                     return true;
                 }
 
-                Products.Add(new OrderProduct(product, Quantity, productPromotion));
+                _products.Add(new OrderProduct(product, Quantity, productPromotion));
                 return true;
             }
             catch (ArgumentNullException)
@@ -47,14 +47,14 @@ namespace XPedido.Models
 
         public bool RemoveProduct(OrderProduct orderProduct)
         {
-            return Products.Remove(orderProduct);
+            return _products.Remove(orderProduct);
         }
 
         public bool UpdateQuantityProduct(Product product, int quantity)
         {
-            if (Products.Any(x => x.Product.Id == product.Id))
+            if (_products.Any(x => x.Product.Id == product.Id))
             {
-                OrderProduct orderProduct = Products.FirstOrDefault(x => x.Product.Id == product.Id);
+                OrderProduct orderProduct = _products.FirstOrDefault(x => x.Product.Id == product.Id);
                 orderProduct.IncrementDecrementQuantity(quantity - orderProduct.Quantity);
 
                 if (orderProduct.Quantity <= 0)
