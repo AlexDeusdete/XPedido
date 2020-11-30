@@ -13,11 +13,15 @@ namespace XPedido.ViewModels
 {
     public class CatalogViewModel : MvxViewModel
     {
+        #region Services and Private Fiels
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly ICategoryService _categoryService;
         private readonly IProductPromotionService _productPromotionService;
         private Order _order;
+        #endregion
+
+        #region Ctor and Initialize
         public CatalogViewModel(IProductService productService,
                                 IOrderService orderService,
                                 ICategoryService categoryService,
@@ -29,6 +33,7 @@ namespace XPedido.ViewModels
             _productPromotionService = productPromotionService;
 
             Products = new MvxObservableCollection<Product>();
+            Categories = new MvxObservableCollection<Category>();
         }
 
         public override async Task Initialize()
@@ -38,9 +43,15 @@ namespace XPedido.ViewModels
 
             _total = 0;
         }
+        #endregion
 
+        #region ObservableCollections
         public MvxObservableCollection<Product> Products;
 
+        public MvxObservableCollection<Category> Categories;
+        #endregion
+
+        #region Private Methods
         private async Task PopulateProducts()
         {
             try
@@ -52,10 +63,17 @@ namespace XPedido.ViewModels
             catch (Exception exception)
             {
                 System.Diagnostics.Debug.WriteLine(exception.Message);
-            }                        
+            }
         }
 
+        private void RecalculateTotals()
+        {
+            Total = _order.GetTotalAfterDiscount();
+            TotalItems = _order.GetTotalQuantityProducts();
+        }
+        #endregion
 
+        #region Propertys        
         private double _total;
         public double Total 
         {
@@ -77,7 +95,9 @@ namespace XPedido.ViewModels
                 RaisePropertyChanged(() => TotalItems);
             }
         }
+        #endregion
 
+        #region Commands        
         private IMvxAsyncCommand<Product> _incrementProductQuantityCommand;
         public IMvxAsyncCommand<Product> IncrementProductQuantityCommand
         {
@@ -87,7 +107,6 @@ namespace XPedido.ViewModels
                 return _incrementProductQuantityCommand;
             }
         }
-
         private async Task IncrementProductQuantity(Product product)
         {
             if (_order == null)
@@ -110,7 +129,6 @@ namespace XPedido.ViewModels
                 return _decrementProductQuantityCommand;
             }
         }
-
         private void DecrementProductQuantity(Product product)
         {
             if (_order.GetOrderProduct(product) != null)
@@ -118,11 +136,6 @@ namespace XPedido.ViewModels
 
             RecalculateTotals();
         }
-
-        private void RecalculateTotals()
-        {
-            Total = _order.GetTotalAfterDiscount();
-            TotalItems = _order.GetTotalQuantityProducts();
-        }
+        #endregion
     }
 }
