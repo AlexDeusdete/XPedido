@@ -27,6 +27,8 @@ namespace XPedido.ViewModels
             _orderService = orderService;
             _categoryService = categoryService;
             _productPromotionService = productPromotionService;
+
+            Products = new MvxObservableCollection<Product>();
         }
 
         public override async Task Initialize()
@@ -37,14 +39,15 @@ namespace XPedido.ViewModels
             _total = 0;
         }
 
-        public MvxObservableCollection<Product> Products => new MvxObservableCollection<Product>();
+        public MvxObservableCollection<Product> Products;
 
-        public async Task PopulateProducts()
+        private async Task PopulateProducts()
         {
             try
             {
                 List<Product> products = await _productService.GetProducts();
-                products.ForEach(x => products.Add(x));
+                Products.Clear();
+                Products.AddRange(products);
             }
             catch (Exception exception)
             {
@@ -61,6 +64,17 @@ namespace XPedido.ViewModels
             {
                 _total = value;
                 RaisePropertyChanged(() => Total);
+            }
+        }
+
+        private int _totalItems;
+        public int TotalItems
+        {
+            get => _totalItems;
+            set
+            {
+                _totalItems = value;
+                RaisePropertyChanged(() => TotalItems);
             }
         }
 
@@ -82,7 +96,9 @@ namespace XPedido.ViewModels
             if (_order.GetOrderProduct(product) != null)
                 _order.GetOrderProduct(product).IncrementDecrementQuantity(1);
             else
-                _order.AddProduct(product, 1, await _productPromotionService.GetProductPromotionByCategoryId(product.Category_id.Value));
+                _order.AddProduct(product, 1, await _productPromotionService.GetProductPromotionByCategoryId(product.Category_id ?? 0));
+
+            RecalculateTotals();
         }
 
         private IMvxCommand _decrementProductQuantityCommand;
@@ -98,7 +114,15 @@ namespace XPedido.ViewModels
         private void DecrementProductQuantity(Product product)
         {
             if (_order.GetOrderProduct(product) != null)
-                _order.GetOrderProduct(product).IncrementDecrementQuantity(1);
+                _order.GetOrderProduct(product).IncrementDecrementQuantity(-1);
+
+            RecalculateTotals();
+        }
+
+        private void RecalculateTotals()
+        {
+            Total = _order.GetTotalAfterDiscount();
+            TotalItems = _order.GetTotalQuantityProducts();
         }
     }
 }
