@@ -13,12 +13,11 @@ namespace XPedido.ViewModels
 {
     public class CatalogViewModel : MvxViewModel
     {
-        #region Services and Private Fiels
+        #region Services
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly ICategoryService _categoryService;
-        private readonly IProductPromotionService _productPromotionService;
-        private Order _order;
+        private readonly IProductPromotionService _productPromotionService;        
         #endregion
 
         #region Ctor and Initialize
@@ -39,7 +38,8 @@ namespace XPedido.ViewModels
         public override async Task Initialize()
         {
             await base.Initialize();
-            await PopulateProducts();
+            await PopulateCategories();
+            await PopulateProducts();            
 
             _total = 0;
         }
@@ -59,6 +59,34 @@ namespace XPedido.ViewModels
                 List<Product> products = await _productService.GetProducts();
                 Products.Clear();
                 Products.AddRange(products);
+            }
+            catch (Exception exception)
+            {
+                System.Diagnostics.Debug.WriteLine(exception.Message);
+            }
+        }
+
+        private async Task PopulateProducts(int idCategory)
+        {
+            try
+            {
+                List<Product> products = await _productService.GetProductsByCategoryId(idCategory);
+                Products.Clear();
+                Products.AddRange(products);
+            }
+            catch (Exception exception)
+            {
+                System.Diagnostics.Debug.WriteLine(exception.Message);
+            }
+        }
+
+        private async Task PopulateCategories()
+        {
+            try
+            {
+                List<Category> categories = await _categoryService.GetCategories();
+                Categories.Clear();
+                Categories.AddRange(categories);
             }
             catch (Exception exception)
             {
@@ -93,6 +121,16 @@ namespace XPedido.ViewModels
             {
                 _totalItems = value;
                 RaisePropertyChanged(() => TotalItems);
+            }
+        }
+
+        private Order _order;
+        private Order Order
+        {
+            get => _order;
+            set
+            {
+                _order = value;
             }
         }
         #endregion
@@ -135,6 +173,20 @@ namespace XPedido.ViewModels
                 _order.GetOrderProduct(product).IncrementDecrementQuantity(-1);
 
             RecalculateTotals();
+        }
+
+        private IMvxAsyncCommand<Category> _filterProductsByCategoryCommand;
+        public IMvxAsyncCommand<Category> FilterProductsByCategoryCommand
+        {
+            get
+            {
+                _filterProductsByCategoryCommand = _filterProductsByCategoryCommand ?? new MvxAsyncCommand<Category>(async (category) => await FilterProductsByCategory(category));
+                return _filterProductsByCategoryCommand;
+            }
+        }
+        private async Task FilterProductsByCategory(Category category)
+        {
+            await PopulateProducts(category.Id);
         }
         #endregion
     }
