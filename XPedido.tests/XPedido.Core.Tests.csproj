@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XPedido\XPedido.csproj" />
+    <ProjectReference Include="..\XPedido\XPedido.Core.csproj" />
   </ItemGroup>
 
 </Project>
