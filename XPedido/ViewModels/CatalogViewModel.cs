@@ -1,4 +1,5 @@
 ﻿using MvvmCross.Commands;
+using MvvmCross.Navigation;
 using MvvmCross.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 using XPedido.Interfaces;
 using XPedido.Models;
 
-namespace XPedido.ViewModels
+namespace XPedido.Core.ViewModels
 {
     public class CatalogViewModel : MvxViewModel
     {
@@ -17,19 +18,22 @@ namespace XPedido.ViewModels
         private readonly IProductService _productService;
         private readonly IOrderService _orderService;
         private readonly ICategoryService _categoryService;
-        private readonly IProductPromotionService _productPromotionService;        
+        private readonly IProductPromotionService _productPromotionService;
+        private readonly IMvxNavigationService _navigationService;
         #endregion
 
         #region Ctor and Initialize
         public CatalogViewModel(IProductService productService,
                                 IOrderService orderService,
                                 ICategoryService categoryService,
-                                IProductPromotionService productPromotionService)
+                                IProductPromotionService productPromotionService,
+                                IMvxNavigationService navigationService)
         {
             _productService = productService;
             _orderService = orderService;
             _categoryService = categoryService;
             _productPromotionService = productPromotionService;
+            _navigationService = navigationService;
 
             Products = new MvxObservableCollection<Product>();
             Categories = new MvxObservableCollection<Category>();
@@ -39,7 +43,7 @@ namespace XPedido.ViewModels
         {
             await base.Initialize();
             await PopulateCategories();
-            await PopulateProducts();            
+            await PopulateProducts();
 
             _total = 0;
         }
@@ -187,6 +191,20 @@ namespace XPedido.ViewModels
         private async Task FilterProductsByCategory(Category category)
         {
             await PopulateProducts(category.Id);
+        }
+
+        private IMvxAsyncCommand _showMenuCommand;
+        public IMvxAsyncCommand ShowMenuCommand
+        {
+            get
+            {
+                _showMenuCommand = _showMenuCommand ?? new MvxAsyncCommand(NavigateToMenuAsync);
+                return _showMenuCommand;
+            }
+        }
+        private Task NavigateToMenuAsync()
+        {
+            return _navigationService.Navigate<MenuViewModel>();
         }
         #endregion
     }
